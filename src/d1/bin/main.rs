@@ -107,27 +107,42 @@ extern crate aoc_2021;
 use aoc_2021::util;
 
 pub fn main() {
-    let input = util::read_to_string("inputs/d1").unwrap();
-    let es: Vec<i64> = input.trim().split('\n')
-        .map(|s| s.parse::<i64>().unwrap()).collect();
-    assert!(es.len() > 3);
+    let d1_part1_soln = d1_part1("inputs/d1");
+    println!("Day 1, part 1 solution: {}", d1_part1_soln);
 
-    let mut count = 0;
-    for i in 1..es.len() {
-        if es[i] > es[i-1] {
-            count += 1;
-        }
-    }
-    println!("nlines {}, number of increasing elevations: {}", es.len(), count);
+    let d1_part2_soln = d1_part2("inputs/d1");
+    println!("Day 1, part 2 solution: {}", d1_part2_soln);
+}
 
-    let mut count_windows = 0;
-    let mut prev = es[2] + es[1] + es[0];
-    for i in 3..es.len() {
-        let window_sum = es[i] + es[i-1] + es[i-2];
-        if window_sum > prev {
-            count_windows += 1;
-        }
-        prev = window_sum;
+pub fn d1_part1(input_file: &str) -> usize {
+    let es = util::read_ints(input_file).unwrap();
+    let len = es.len();
+
+    let preds = &es[0..len];
+    let succs = &es[1..];
+    preds.iter().zip(succs).filter(|(&p, &s)| s > p).collect::<Vec<_>>().len()
+}
+
+pub fn d1_part2(input_file: &str) -> usize {
+    let es = util::read_ints(input_file).unwrap();
+    let windows: Vec<&[i64]> = es.windows(3).collect();
+    let len = windows.len();
+    let preds = &windows[0..len];
+    let succs = &windows[1..];
+    preds.iter().zip(succs).filter(|(&pw, &sw)| sw[2] > pw[0]).collect::<Vec<_>>().len()
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_d1_part1() {
+        assert_eq!(d1_part1("inputs/d1_test"), 7);
     }
-    println!("number of increasing elevation windows: {}", count_windows);
+
+    #[test]
+    fn test_d1_part2() {
+        assert_eq!(d1_part2("inputs/d1_test"), 5);
+    }
 }
