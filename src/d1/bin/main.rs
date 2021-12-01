@@ -110,31 +110,24 @@ pub fn main() {
     let input = util::read_to_string("inputs/d1").unwrap();
     let es: Vec<i64> = input.trim().split('\n')
         .map(|s| s.parse::<i64>().unwrap()).collect();
+    assert!(es.len() > 3);
 
-    let mut prev: Option<i64> = None;
-    let mut count_increasing: i64 = 0;
-    for elev in es.iter() {
-        if let Some(p) = prev {
-            if *elev >= p {
-                count_increasing = count_increasing + 1;
-            }
-        }
-        prev = Some(*elev);
-    }
-    println!("nlines {}, number of increasing elevations: {}", es.len(), count_increasing);
-
-    let mut count_window_inc: i64 = 0;
-    prev = None;
-    for (i, _) in es.iter().enumerate() {
-        if i >= 2 {
-            let window_sum = es[i] + es[i-1] + es[i-2];
-            if let Some(p) = prev {
-                if window_sum > p {
-                    count_window_inc = count_window_inc + 1;
-                }
-            }
-            prev = Some(window_sum);
+    let mut count = 0;
+    for i in 1..es.len() {
+        if es[i] > es[i-1] {
+            count += 1;
         }
     }
-    println!("number of increasing elevation windows: {}", count_window_inc);
+    println!("nlines {}, number of increasing elevations: {}", es.len(), count);
+
+    let mut count_windows = 0;
+    let mut prev = es[2] + es[1] + es[0];
+    for i in 3..es.len() {
+        let window_sum = es[i] + es[i-1] + es[i-2];
+        if window_sum > prev {
+            count_windows += 1;
+        }
+        prev = window_sum;
+    }
+    println!("number of increasing elevation windows: {}", count_windows);
 }
