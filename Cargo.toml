@@ -1,0 +1,11 @@
+[package]
+name = "aoc_2021"
+version = "0.1.0"
+authors = ["Benjamin Jones <benjaminfjones@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+
+[[bin]]
+name = "d1"
+path = "src/d1/bin/main.rs"
