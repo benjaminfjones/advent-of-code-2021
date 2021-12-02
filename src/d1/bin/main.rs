@@ -139,10 +139,12 @@ mod test {
     #[test]
     fn test_d1_part1() {
         assert_eq!(d1_part1("inputs/d1_test"), 7);
+        assert_eq!(d1_part1("inputs/d1"), 1451);
     }
 
     #[test]
     fn test_d1_part2() {
         assert_eq!(d1_part2("inputs/d1_test"), 5);
+        assert_eq!(d1_part2("inputs/d1"), 1395);
     }
 }
