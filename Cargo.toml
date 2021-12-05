@@ -5,6 +5,7 @@ authors = ["Benjamin Jones <benjaminfjones@gmail.com>"]
 edition = "2021"
 
 [dependencies]
+regex = "1"
 
 [[bin]]
 name = "d1"
@@ -21,3 +22,7 @@ path = "src/d3/bin/main.rs"
 [[bin]]
 name = "d4"
 path = "src/d4/bin/main.rs"
+
+[[bin]]
+name = "d5"
+path = "src/d5/bin/main.rs"
