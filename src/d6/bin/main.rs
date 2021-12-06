@@ -4,6 +4,7 @@
 extern crate aoc_2021;
 
 use std::collections::HashMap;
+use std::time::{Duration, Instant};
 
 use aoc_2021::util;
 
@@ -70,10 +71,16 @@ fn d6_part2(input_file: &str) -> u64 {
 
 pub fn main() {
     println!("[test] number of fish after 80 days: {}", d6_part1("inputs/d6_test"));
-    println!("number of fish after 80 days: {}", d6_part1("inputs/d6"));
+    let start = Instant::now();
+    let d6_part1_solution = d6_part1("inputs/d6");
+    let duration = start.elapsed();
+    println!("number of fish after 80 days: {} (duration {:?})", d6_part1_solution, duration);
 
     println!("[test] number of fish after 256 days: {}", d6_part2("inputs/d6_test"));
-    println!("number of fish after 256 days: {}", d6_part2("inputs/d6"));
+    let start2 = Instant::now();
+    let d6_part2_solution = d6_part2("inputs/d6");
+    let duration2 = start2.elapsed();
+    println!("number of fish after 256 days: {} (duration {:?})", d6_part2_solution, duration2);
 }
 
 #[cfg(test)]
