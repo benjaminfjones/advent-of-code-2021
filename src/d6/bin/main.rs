@@ -24,45 +24,46 @@
 /// ```
 ///
 /// There appears to be no performance difference.
+///
+/// Benchmark after refactoring FishMap to [u64; 9]:
+///
+/// ```
+/// [test] number of fish after 80 days: 5934
+/// number of fish after 80 days: 374927 (duration 37.458µs)
+/// [test] number of fish after 256 days: 26984457539
+/// number of fish after 256 days: 1687617803407 (duration 20.875µs)
+/// ```
+///
+/// Roughly 8x faster...
 
 extern crate aoc_2021;
 
-use std::collections::HashMap;
 use std::time::Instant;
 
 use aoc_2021::util;
 
-fn parse_input(file: &str) -> Vec<u64> {
+fn parse_input(file: &str) -> Vec<usize> {
     let content = util::read_to_string(file).unwrap();
-    content.trim().split(',').map(|s| s.parse::<u64>().unwrap()).collect()
+    content.trim().split(',').map(|s| s.parse::<usize>().unwrap()).collect()
 }
 
-// map from fish timer value -> # of isomorphic fish with that timer
-type FishMap = HashMap<u64, u64>;
+// Track fish timers using a fixed sized array of ints:
+//   * array index = fish timer value
+//   * array value = number of fish with a specific timer value
+type FishMap = [u64; 9];
 
 /// Add `amt` fish to the map with timer value `timer`
-fn inc_fish(fish_map: &mut FishMap, timer: u64, amt: u64) {
-    if let Some(&c) = fish_map.get(&timer) {
-        fish_map.insert(timer, c+amt);
-    } else {
-        fish_map.insert(timer, amt);
-    }
+fn inc_fish(fish_map: &mut FishMap, timer: usize, amt: u64) {
+    fish_map[timer] += amt;
 }
 
-fn dec_fish(fish_map: &mut FishMap, timer: u64, amt: u64) {
-    if let Some(&c) = fish_map.get(&timer) {
-        if amt > c {
-            panic!("impossible negative fish!");
-        }
-        fish_map.insert(timer, c - amt);
-    } else {
-        panic!("impossible negative fish!");
-    }
+fn dec_fish(fish_map: &mut FishMap, timer: usize, amt: u64) {
+    fish_map[timer] -= amt;
 }
 
 /// 1 fish, 2 fish, red fish, blue fish
 fn count_fish(fish_map: FishMap) -> u64 {
-    fish_map.values().sum()
+    fish_map.iter().sum()
 }
 
 /// Simulate one tick of the clock, mutating the given `fish_map` in-place
@@ -70,15 +71,13 @@ fn simulate(fish_map: &mut FishMap) {
     let mut prev_zero_fish: u64 = 0;
     // the only legal timer values are 0..8
     for t in 0..=8 {
-        let mv = fish_map.get(&t);
-        if let Some(&v) = mv {
-            if t == 0 {
-                prev_zero_fish = v;
-                dec_fish(fish_map, 0, v);
-            } else {
-                inc_fish(fish_map, t-1, v);
-                dec_fish(fish_map, t, v);
-            }
+        let v = fish_map[t];
+        if t == 0 {
+            prev_zero_fish = v;
+            dec_fish(fish_map, 0, v);
+        } else {
+            inc_fish(fish_map, t-1, v);
+            dec_fish(fish_map, t, v);
         }
     }
     // add the new spawned fish last so that we don't simulate them in this tick
@@ -91,7 +90,7 @@ fn simulate(fish_map: &mut FishMap) {
 fn exec_fish_simulator(input_file: &str, ticks: u64) -> u64 {
     let init_fish_timers = parse_input(input_file);
 
-    let mut fish_map: HashMap<u64, u64> = HashMap::new();
+    let mut fish_map = [0; 9];
     for t in init_fish_timers {
         inc_fish(&mut fish_map, t, 1);
     }
