@@ -1,3 +1,5 @@
+pub mod d7;
+
 pub mod util {
     use std::fs::File;
     use std::io::{self, BufRead, Error, ErrorKind, Read};

@@ -7,6 +7,9 @@ edition = "2021"
 [dependencies]
 regex = "1"
 
+[dev-dependencies]
+criterion = "0.3"
+
 [[bin]]
 name = "d1"
 path = "src/d1/bin/main.rs"
@@ -30,3 +33,7 @@ path = "src/d5/bin/main.rs"
 [[bin]]
 name = "d6"
 path = "src/d6/bin/main.rs"
+
+[[bench]]
+name = "d7"
+harness = false
