@@ -1,6 +1,5 @@
 /// AoC 2021 -- Day 2
 /// https://adventofcode.com/2021/day/2
-
 extern crate aoc_2021;
 
 use aoc_2021::util;
@@ -12,35 +11,65 @@ pub struct State {
 }
 
 pub fn d2_driver<F>(input_file: &str, interpreter: F) -> State
-    where F: Fn(State, &(&str, i64)) -> State {
+where
+    F: Fn(State, &(&str, i64)) -> State,
+{
     let content = util::read_to_string(input_file).unwrap();
     // parse the input file into a Vec of tuples (command, amount)
-    let tuples: Vec<(&str, i64)> = content.trim()
+    let tuples: Vec<(&str, i64)> = content
+        .trim()
         // make lines
         .split('\n')
         // turn lines -> tuples (&str, i64)
         .map(|s| {
             let splits: Vec<&str> = s.split(" ").collect();
             (splits[0], splits[1].parse::<i64>().unwrap())
-        }).collect();
-    tuples.iter().fold(State {aim: 0, horiz: 0, depth: 0}, interpreter)
+        })
+        .collect();
+    tuples.iter().fold(
+        State {
+            aim: 0,
+            horiz: 0,
+            depth: 0,
+        },
+        interpreter,
+    )
 }
 
 pub fn d2_part1_interpreter(st: State, cmd: &(&str, i64)) -> State {
     match *cmd {
-        ("forward", x) => State {horiz: st.horiz + x, ..st},
-        ("up", x) => State {depth: st.depth - x, ..st},
-        ("down", x) => State {depth: st.depth + x, ..st},
-        (c, _) => panic!("invalid command: {}", c)
+        ("forward", x) => State {
+            horiz: st.horiz + x,
+            ..st
+        },
+        ("up", x) => State {
+            depth: st.depth - x,
+            ..st
+        },
+        ("down", x) => State {
+            depth: st.depth + x,
+            ..st
+        },
+        (c, _) => panic!("invalid command: {}", c),
     }
 }
 
 pub fn d2_part2_interpreter(st: State, cmd: &(&str, i64)) -> State {
     match *cmd {
-        ("forward", x) => State {horiz: st.horiz + x, depth: st.depth + st.aim * x, ..st},
-        ("up", x) => State {aim: st.aim - x, ..st},
-        ("down", x) => State {aim: st.aim + x, ..st},
-        (c, _) => panic!("invalid command: {}", c)
+        ("forward", x) => State {
+            horiz: st.horiz + x,
+            depth: st.depth + st.aim * x,
+            ..st
+        },
+        ("up", x) => State {
+            aim: st.aim - x,
+            ..st
+        },
+        ("down", x) => State {
+            aim: st.aim + x,
+            ..st
+        },
+        (c, _) => panic!("invalid command: {}", c),
     }
 }
 
@@ -51,7 +80,7 @@ pub fn main() {
         st_part1.horiz,
         st_part1.depth,
         st_part1.horiz * st_part1.depth
-     );
+    );
 
     let st_part2 = d2_driver("inputs/d2", d2_part2_interpreter);
     println!(
@@ -59,7 +88,7 @@ pub fn main() {
         st_part2.horiz,
         st_part2.depth,
         st_part2.horiz * st_part2.depth
-     );
+    );
 }
 
 #[cfg(test)]

@@ -33,10 +33,14 @@ pub mod util {
 
     pub fn read_ints(path: &str) -> io::Result<Vec<i64>> {
         let content = read_to_string(path)?;
-        let ints_res: Result<Vec<_>, ParseIntError> = content.trim().split('\n').map(|s| s.parse::<i64>()).collect();
+        let ints_res: Result<Vec<_>, ParseIntError> = content
+            .trim()
+            .split('\n')
+            .map(|s| s.parse::<i64>())
+            .collect();
         match ints_res {
             Ok(v) => Ok(v),
-            Err(_) => Err(Error::new(ErrorKind::Other, "i64 parse error"))
+            Err(_) => Err(Error::new(ErrorKind::Other, "i64 parse error")),
         }
     }
 }
@@ -50,15 +54,25 @@ mod grid {
 
     impl<T> Grid<T> {
         pub fn new(rows: usize, cols: usize, fill: T) -> Self
-            where T: Clone {
-            let mut content =Vec::new();
-            content.resize(rows*cols, fill);
-            Grid {rows, cols, content}
+        where
+            T: Clone,
+        {
+            let mut content = Vec::new();
+            content.resize(rows * cols, fill);
+            Grid {
+                rows,
+                cols,
+                content,
+            }
         }
 
         pub fn from_vec(rows: usize, cols: usize, content: Vec<T>) -> Result<Self, &'static str> {
             if content.len() == rows * cols {
-                Ok(Grid {rows, cols, content})
+                Ok(Grid {
+                    rows,
+                    cols,
+                    content,
+                })
             } else {
                 Err("rows * cols vs. content length mismatch")
             }
@@ -66,17 +80,25 @@ mod grid {
 
         pub fn from_rows(content: Vec<Vec<T>>) -> Result<Self, &'static str> {
             if content.is_empty() {
-                return Ok(Grid{rows: 0, cols: 0, content: Vec::new()});
+                return Ok(Grid {
+                    rows: 0,
+                    cols: 0,
+                    content: Vec::new(),
+                });
             }
             let rows = content.len();
             let cols = content[0].len();
-            Ok(Grid {rows, cols, content: content.into_iter().flatten().collect()})
+            Ok(Grid {
+                rows,
+                cols,
+                content: content.into_iter().flatten().collect(),
+            })
         }
 
         /// Get element from the grid at (row, col)
         pub fn get(&self, row: usize, col: usize) -> Option<&T> {
             if row < self.rows && col < self.cols {
-                Some(&self.content[row*self.cols + col])
+                Some(&self.content[row * self.cols + col])
             } else {
                 None
             }
@@ -85,7 +107,7 @@ mod grid {
         /// Set element on the grid at (row, col)
         pub fn set(&mut self, row: usize, col: usize, value: T) -> Result<(), ()> {
             if row < self.rows && col < self.cols {
-                self.content[row*self.cols + col] = value;
+                self.content[row * self.cols + col] = value;
                 Ok(())
             } else {
                 Err(())
@@ -101,7 +123,7 @@ mod grid {
         fn test_grid_api() {
             let mut grid = Grid::new(5, 5, false);
             assert_eq!(grid.get(0, 0), Some(&false));
-            assert_eq!(grid.get(0,501), None);
+            assert_eq!(grid.get(0, 501), None);
             assert_eq!(grid.get(501, 0), None);
 
             assert!(grid.set(1, 1, true).is_ok());
@@ -110,10 +132,7 @@ mod grid {
 
         #[test]
         fn test_from_rows() {
-            let content = vec![
-                vec![0,1,0],
-                vec![2,3,4],
-            ];
+            let content = vec![vec![0, 1, 0], vec![2, 3, 4]];
             let grid = Grid::from_rows(content).unwrap();
             assert_eq!(grid.get(0, 0), Some(&0));
         }

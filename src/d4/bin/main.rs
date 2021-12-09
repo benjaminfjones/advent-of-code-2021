@@ -1,17 +1,19 @@
 /// AoC 2021 -- Day 4
 /// https://adventofcode.com/2021/day/4
-
 extern crate aoc_2021;
 
+use aoc_2021::util;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use aoc_2021::util;
 
 pub fn main() {
     // Process the munged input
     let mut input_iter = util::read_lines("inputs/d4_munge").unwrap();
     let first_line = input_iter.next().unwrap().unwrap();
-    let bingo_calls: Vec<u32> = first_line.split(',').map(|w| w.parse::<u32>().unwrap()).collect();
+    let bingo_calls: Vec<u32> = first_line
+        .split(',')
+        .map(|w| w.parse::<u32>().unwrap())
+        .collect();
     let mut boards: Vec<Board> = Vec::new();
     for mline in input_iter {
         let line = mline.unwrap();
@@ -26,7 +28,9 @@ pub fn main() {
     let mut boards_won: HashSet<usize> = HashSet::new();
     for call in bingo_calls {
         for (i, board) in boards.iter_mut().enumerate() {
-            if boards_won.contains(&i) { continue }
+            if boards_won.contains(&i) {
+                continue;
+            }
             if board.mark_and_win(call) {
                 println!("WIN {}", board.sum_unmarked() * call);
                 boards_won.insert(i);
@@ -48,7 +52,7 @@ pub struct Cell {
 
 impl Cell {
     pub fn new(value: u32, mark: bool) -> Self {
-        Cell {value, mark}
+        Cell { value, mark }
     }
 }
 
@@ -72,7 +76,7 @@ impl Board {
             cellmap.insert(pos, cell);
             posmap.insert(u, pos);
         }
-        Board {cellmap, posmap}
+        Board { cellmap, posmap }
     }
 
     // check if the (row, col) is marked; assume row, col are in bounds
@@ -83,7 +87,9 @@ impl Board {
     // Mark the number on the board, mutating the board. If the number was present on the board and
     // marking results in a winning board, return `true`, otherwise `false`.
     pub fn mark_and_win(&mut self, num: u32) -> bool {
-        if !self.posmap.contains_key(&num) { return false }
+        if !self.posmap.contains_key(&num) {
+            return false;
+        }
         let pos = self.posmap.get(&num).unwrap();
         let newcell = Cell::new(num, true);
         self.cellmap.insert(*pos, newcell);
@@ -96,7 +102,8 @@ impl Board {
     }
 
     pub fn sum_unmarked(&self) -> u32 {
-        self.cellmap.iter()
+        self.cellmap
+            .iter()
             .map(|(_, c)| c)
             .filter(|c| !c.mark)
             .map(|c| c.value)
@@ -111,11 +118,8 @@ mod test {
     #[test]
     pub fn test_mark_board() {
         let grid = vec![
-           22, 13, 17, 11,  0,
-            8,  2, 23,  4, 24,
-           21,  9, 14, 16,  7,
-            6, 10,  3, 18,  5,
-            1, 12, 20, 15, 19,
+            22, 13, 17, 11, 0, 8, 2, 23, 4, 24, 21, 9, 14, 16, 7, 6, 10, 3, 18, 5, 1, 12, 20, 15,
+            19,
         ];
         let grid_sum: u32 = grid.iter().sum();
         let mut board1 = Board::from_u32s(&grid);
@@ -134,9 +138,9 @@ mod test {
         assert!(!board2.mark_and_win(3));
         assert!(!board2.mark_and_win(5));
         assert!(!board2.mark_and_win(18));
-        assert!(!board2.mark_and_win(0));  // not in row
-        assert!(!board2.mark_and_win(19));  // not in row
-        // WIN
+        assert!(!board2.mark_and_win(0)); // not in row
+        assert!(!board2.mark_and_win(19)); // not in row
+                                           // WIN
         assert!(board2.mark_and_win(10));
         assert_eq!(board2.sum_unmarked(), grid_sum - 6 - 3 - 5 - 18 - 19 - 10);
 
@@ -149,4 +153,3 @@ mod test {
         assert!(!board3.mark_and_win(1));
     }
 }
-

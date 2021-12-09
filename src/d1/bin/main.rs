@@ -1,6 +1,5 @@
 /// AoC 2021 -- Day 1
 /// https://adventofcode.com/2021/day/1
-
 extern crate aoc_2021;
 
 use aoc_2021::util;
@@ -19,7 +18,12 @@ pub fn d1_part1(input_file: &str) -> usize {
 
     let preds = &es[0..len];
     let succs = &es[1..];
-    preds.iter().zip(succs).filter(|(&p, &s)| s > p).collect::<Vec<_>>().len()
+    preds
+        .iter()
+        .zip(succs)
+        .filter(|(&p, &s)| s > p)
+        .collect::<Vec<_>>()
+        .len()
 }
 
 pub fn d1_part2(input_file: &str) -> usize {
@@ -28,7 +32,12 @@ pub fn d1_part2(input_file: &str) -> usize {
     let len = windows.len();
     let preds = &windows[0..len];
     let succs = &windows[1..];
-    preds.iter().zip(succs).filter(|(&pw, &sw)| sw[2] > pw[0]).collect::<Vec<_>>().len()
+    preds
+        .iter()
+        .zip(succs)
+        .filter(|(&pw, &sw)| sw[2] > pw[0])
+        .collect::<Vec<_>>()
+        .len()
 }
 
 #[cfg(test)]

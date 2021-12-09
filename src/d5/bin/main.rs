@@ -1,6 +1,5 @@
 /// AoC 2021 -- Day 5
 /// https://adventofcode.com/2021/day/5
-
 extern crate aoc_2021;
 
 use std::collections::HashMap;
@@ -21,11 +20,20 @@ impl Line {
     // create a new line, normalizing start/end to be lexicographic
     fn new(x0: i64, y0: i64, x1: i64, y1: i64) -> Self {
         if x0 > x1 {
-            Line {start: (x1, y1), end: (x0, y0)}
+            Line {
+                start: (x1, y1),
+                end: (x0, y0),
+            }
         } else if x0 == x1 && y0 > y1 {
-            Line {start: (x1, y1), end: (x0, y0)}
+            Line {
+                start: (x1, y1),
+                end: (x0, y0),
+            }
         } else {
-            Line {start: (x0, y0), end: (x1, y1)}
+            Line {
+                start: (x0, y0),
+                end: (x1, y1),
+            }
         }
     }
 
@@ -82,7 +90,7 @@ impl Grid {
             // assume line is diagonal
             let dy = line.end.1 - line.start.1;
             let dx = line.end.0 - line.start.0;
-            let slope = dy/dx;
+            let slope = dy / dx;
             let mut y = line.start.1;
             for x in line.start.0..=line.end.0 {
                 self.increment((x, y));
@@ -101,7 +109,11 @@ impl fmt::Display for Grid {
         for y in 0..=ymax {
             for x in 0..=xmax {
                 let count = self.get_count(&(x, y));
-                let marker = if count > 0 {format!("{}", count)} else {".".to_string()};
+                let marker = if count > 0 {
+                    format!("{}", count)
+                } else {
+                    ".".to_string()
+                };
                 result += &marker;
             }
             result += &format!("\n");
@@ -149,7 +161,10 @@ fn d5_part2(file: &str) -> usize {
 }
 
 pub fn main() {
-    println!("# dangerous areas (w/o diagonal vents): {}", d5_part1("inputs/d5"));
+    println!(
+        "# dangerous areas (w/o diagonal vents): {}",
+        d5_part1("inputs/d5")
+    );
     println!("# dangerous areas (all vents): {}", d5_part2("inputs/d5"));
 }
 

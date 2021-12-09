@@ -35,7 +35,6 @@
 /// ```
 ///
 /// Roughly 8x faster...
-
 extern crate aoc_2021;
 
 use std::time::Instant;
@@ -44,7 +43,11 @@ use aoc_2021::util;
 
 fn parse_input(file: &str) -> Vec<usize> {
     let content = util::read_to_string(file).unwrap();
-    content.trim().split(',').map(|s| s.parse::<usize>().unwrap()).collect()
+    content
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<usize>().unwrap())
+        .collect()
 }
 
 // Track fish timers using a fixed sized array of ints:
@@ -76,7 +79,7 @@ fn simulate(fish_map: &mut FishMap) {
             prev_zero_fish = v;
             dec_fish(fish_map, 0, v);
         } else {
-            inc_fish(fish_map, t-1, v);
+            inc_fish(fish_map, t - 1, v);
             dec_fish(fish_map, t, v);
         }
     }
@@ -111,17 +114,29 @@ fn d6_part2(input_file: &str) -> u64 {
 }
 
 pub fn main() {
-    println!("[test] number of fish after 80 days: {}", d6_part1("inputs/d6_test"));
+    println!(
+        "[test] number of fish after 80 days: {}",
+        d6_part1("inputs/d6_test")
+    );
     let start = Instant::now();
     let d6_part1_solution = d6_part1("inputs/d6");
     let duration = start.elapsed();
-    println!("number of fish after 80 days: {} (duration {:?})", d6_part1_solution, duration);
+    println!(
+        "number of fish after 80 days: {} (duration {:?})",
+        d6_part1_solution, duration
+    );
 
-    println!("[test] number of fish after 256 days: {}", d6_part2("inputs/d6_test"));
+    println!(
+        "[test] number of fish after 256 days: {}",
+        d6_part2("inputs/d6_test")
+    );
     let start2 = Instant::now();
     let d6_part2_solution = d6_part2("inputs/d6");
     let duration2 = start2.elapsed();
-    println!("number of fish after 256 days: {} (duration {:?})", d6_part2_solution, duration2);
+    println!(
+        "number of fish after 256 days: {} (duration {:?})",
+        d6_part2_solution, duration2
+    );
 }
 
 #[cfg(test)]

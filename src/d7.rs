@@ -1,11 +1,14 @@
 /// AoC 2021 -- Day 7
 /// https://adventofcode.com/2021/day/7
-
 use crate::util;
 
 pub fn parse_input(file: &str) -> Vec<u64> {
     let content = util::read_to_string(file).unwrap();
-    content.trim().split(',').map(|s| s.parse::<u64>().unwrap()).collect()
+    content
+        .trim()
+        .split(',')
+        .map(|s| s.parse::<u64>().unwrap())
+        .collect()
 }
 
 /// This is not correct, in general, but is for the two given inputs :)
@@ -25,7 +28,7 @@ fn median(xs: &Vec<u64>) -> u64 {
 pub fn d7_part1(input_file: &str) -> u64 {
     let xs = parse_input(input_file);
     let x = median(&xs);
-    xs.iter().map(|&n| if x < n {n-x} else {x-n}).sum()
+    xs.iter().map(|&n| if x < n { n - x } else { x - n }).sum()
 }
 
 /// Naive solution for part 2, uses the identity:
@@ -39,13 +42,13 @@ pub fn d7_part2(input_file: &str) -> u64 {
     let xmin = *xs.iter().min().unwrap();
     let xmax = *xs.iter().max().unwrap();
     // start with a safe upper bound
-    let mut min_fuel = (xmax+1) * xmax * (xs.len() as u64);
+    let mut min_fuel = (xmax + 1) * xmax * (xs.len() as u64);
     for x in xmin..=xmax {
         let mut fuel = 0u64;
         for &n in xs.iter() {
-            let d = if x < n {n - x} else {x - n};
+            let d = if x < n { n - x } else { x - n };
             // increment by 1 + 2 + ... + d
-            fuel += (d+1)*d/2;
+            fuel += (d + 1) * d / 2;
             // bail early
             if fuel >= min_fuel {
                 break;

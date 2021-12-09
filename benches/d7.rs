@@ -1,3 +1,4 @@
+use aoc_2021::d7;
 /// Benchmarks on v1 solutions:
 ///
 /// d7 part1 test           time:   [5.1057 us 5.1255 us 5.1487 us]
@@ -25,10 +26,11 @@
 ///                         Change within noise threshold.
 ///
 use criterion::{criterion_group, criterion_main, Criterion};
-use aoc_2021::d7;
 
 pub fn bench_d7_part1_test(c: &mut Criterion) {
-    c.bench_function("d7 part1 test", |b| b.iter(|| d7::d7_part1("inputs/d7_test")));
+    c.bench_function("d7 part1 test", |b| {
+        b.iter(|| d7::d7_part1("inputs/d7_test"))
+    });
 }
 
 pub fn bench_d7_part1(c: &mut Criterion) {
@@ -36,14 +38,16 @@ pub fn bench_d7_part1(c: &mut Criterion) {
 }
 
 pub fn bench_d7_part2_test(c: &mut Criterion) {
-    c.bench_function("d7 part2 test", |b| b.iter(|| d7::d7_part2("inputs/d7_test")));
+    c.bench_function("d7 part2 test", |b| {
+        b.iter(|| d7::d7_part2("inputs/d7_test"))
+    });
 }
 
 pub fn bench_d7_part2(c: &mut Criterion) {
     c.bench_function("d7 part2", |b| b.iter(|| d7::d7_part2("inputs/d7")));
 }
 
-criterion_group!{
+criterion_group! {
     name = benches;
     config = Criterion::default();
     targets = bench_d7_part1_test, bench_d7_part1, bench_d7_part2_test, bench_d7_part2

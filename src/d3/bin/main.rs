@@ -1,6 +1,5 @@
 /// AoC 2021 -- Day 3
 /// https://adventofcode.com/2021/day/3
-
 extern crate aoc_2021;
 
 use aoc_2021::util;
@@ -14,7 +13,9 @@ pub fn d3_part1(input_file: &str) -> usize {
     let input_bvs = input_to_bitvectors(input_file);
     let nbits = input_bvs[0].len();
     // gamma_rate has the most common bit at each index
-    let gamma_rate: Vec<bool> = (0..nbits).map(|i| mcb(&input_bvs.iter().collect(), i)).collect();
+    let gamma_rate: Vec<bool> = (0..nbits)
+        .map(|i| mcb(&input_bvs.iter().collect(), i))
+        .collect();
     // eps_rate is the bit-wise negation of gamma_rate
     let eps_rate = gamma_rate.iter().map(|b| !b).collect();
     bv_to_int(&gamma_rate) * bv_to_int(&eps_rate)
@@ -31,7 +32,8 @@ pub fn d3_part2(input_file: &str) -> usize {
 pub fn input_to_bitvectors(input_file: &str) -> Vec<Vec<bool>> {
     let content = util::read_to_string(input_file).unwrap();
     let bitstrs: Vec<&str> = content.trim().split('\n').collect();
-    bitstrs.iter()
+    bitstrs
+        .iter()
         .map(|&s| s.chars().map(|c| c == '1').collect::<Vec<bool>>())
         .collect()
 }
@@ -39,7 +41,9 @@ pub fn input_to_bitvectors(input_file: &str) -> Vec<Vec<bool>> {
 /// Return the first bitvector after repreatedly filtering using the given column
 /// selector; avoids copying inner bitvectors
 pub fn find_bv_by_selector<F>(bvs: &Vec<Vec<bool>>, selector: F) -> &Vec<bool>
-    where F: Fn(&Vec<&Vec<bool>>, usize) -> bool {
+where
+    F: Fn(&Vec<&Vec<bool>>, usize) -> bool,
+{
     let nbits = bvs[0].len();
     let mut bv_ptrs: Vec<&Vec<bool>> = bvs.iter().collect();
     for i in 0..nbits {
@@ -54,7 +58,8 @@ pub fn find_bv_by_selector<F>(bvs: &Vec<Vec<bool>>, selector: F) -> &Vec<bool>
 
 /// Convert bitvector to unsigned int
 pub fn bv_to_int(bv: &Vec<bool>) -> usize {
-    bv.iter().fold(0, |acc, &x| (acc << 1) + (if x {1} else {0}))
+    bv.iter()
+        .fold(0, |acc, &x| (acc << 1) + (if x { 1 } else { 0 }))
 }
 
 /// Most common bit at given index

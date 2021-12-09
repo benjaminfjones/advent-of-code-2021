@@ -1,10 +1,9 @@
+use crate::util;
 /// AoC 2021 -- Day 8
 /// https://adventofcode.com/2021/day/8
-
 use std::char;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
-use crate::util;
 
 #[derive(Debug)]
 pub struct Note {
@@ -21,9 +20,15 @@ impl FromStr for Note {
         let mut vert_splits = s.split('|');
         let prefix = vert_splits.next().ok_or(())?.trim();
         let suffix = vert_splits.next().ok_or(())?.trim();
-        let obs = prefix.split(char::is_whitespace).map(|s| normalize(s)).collect();
-        let outputs = suffix.split(char::is_whitespace).map(|s| normalize(s)).collect();
-        Ok(Note {obs, outputs})
+        let obs = prefix
+            .split(char::is_whitespace)
+            .map(|s| normalize(s))
+            .collect();
+        let outputs = suffix
+            .split(char::is_whitespace)
+            .map(|s| normalize(s))
+            .collect();
+        Ok(Note { obs, outputs })
     }
 }
 
@@ -35,9 +40,11 @@ fn normalize(s: &str) -> String {
 
 pub fn parse_input(input_file: &str) -> Vec<Note> {
     let content = util::read_to_string(input_file).unwrap();
-    content.trim().split('\n').map(|s|
-        s.parse::<Note>().expect("failed to parse Note from input")
-    ).collect()
+    content
+        .trim()
+        .split('\n')
+        .map(|s| s.parse::<Note>().expect("failed to parse Note from input"))
+        .collect()
 }
 
 fn is_uniq_output(output: &str) -> bool {
@@ -67,7 +74,12 @@ fn num_common_signals(ss1: &SignalSet, ss2: &SignalSet) -> usize {
 }
 
 /// Add a signal set -> digit inference fact
-fn infer(sig_map: &mut HashMap<SignalSet, u32>, digit_map: &mut HashMap<u32, SignalSet>, signal: &SignalSet, digit: u32) {
+fn infer(
+    sig_map: &mut HashMap<SignalSet, u32>,
+    digit_map: &mut HashMap<u32, SignalSet>,
+    signal: &SignalSet,
+    digit: u32,
+) {
     sig_map.insert(signal.clone(), digit);
     digit_map.insert(digit, signal.clone());
 }
@@ -98,22 +110,41 @@ fn infer(sig_map: &mut HashMap<SignalSet, u32>, digit_map: &mut HashMap<u32, Sig
 fn infer_signal_mapping(note: &Note) -> HashMap<SignalSet, u32> {
     let mut sig_map: HashMap<SignalSet, u32> = HashMap::new();
     let mut digit_map: HashMap<u32, SignalSet> = HashMap::new();
-    let obs_sets: Vec<SignalSet> = note.obs.iter()
-        .map(|s| s.chars().collect::<SignalSet>()).collect();
+    let obs_sets: Vec<SignalSet> = note
+        .obs
+        .iter()
+        .map(|s| s.chars().collect::<SignalSet>())
+        .collect();
 
     // first pass: collect unique signal patterns
     for obs in obs_sets.iter() {
         let n = obs.len();
         match n {
-            2 => { infer(&mut sig_map, &mut digit_map, obs, 1); }
-            3 => { infer(&mut sig_map, &mut digit_map, obs, 7); }
-            4 => { infer(&mut sig_map, &mut digit_map, obs, 4); }
-            7 => { infer(&mut sig_map, &mut digit_map, obs, 8); }
-            _ => { continue; }
+            2 => {
+                infer(&mut sig_map, &mut digit_map, obs, 1);
+            }
+            3 => {
+                infer(&mut sig_map, &mut digit_map, obs, 7);
+            }
+            4 => {
+                infer(&mut sig_map, &mut digit_map, obs, 4);
+            }
+            7 => {
+                infer(&mut sig_map, &mut digit_map, obs, 8);
+            }
+            _ => {
+                continue;
+            }
         }
     }
-    let sig_1 = digit_map.get(&1).expect("failed to find signal for 1").clone();
-    let sig_4 = digit_map.get(&4).expect("failed to find signal for 1").clone();
+    let sig_1 = digit_map
+        .get(&1)
+        .expect("failed to find signal for 1")
+        .clone();
+    let sig_4 = digit_map
+        .get(&4)
+        .expect("failed to find signal for 1")
+        .clone();
 
     // second pass: infer signal patterns of length 5, 6
     for obs in obs_sets.iter() {
@@ -149,11 +180,16 @@ fn infer_signal_mapping(note: &Note) -> HashMap<SignalSet, u32> {
                 } else if common_with_4 == 4 {
                     infer(&mut sig_map, &mut digit_map, obs, 9);
                 } else {
-                    panic!("5-signal inference failed for: {}, digit_map: {:?}", obs, digit_map);
+                    panic!(
+                        "5-signal inference failed for: {}, digit_map: {:?}",
+                        obs, digit_map
+                    );
                 }
             }
 
-            _ => { continue; }
+            _ => {
+                continue;
+            }
         }
     }
 
@@ -166,8 +202,10 @@ fn infer_signal_mapping(note: &Note) -> HashMap<SignalSet, u32> {
 fn decode_outputs(sig_map: &HashMap<SignalSet, u32>, outputs: &Vec<String>) -> u32 {
     let mut result = 0u32;
     for out_sig in outputs {
-        let digit = sig_map.get(out_sig)
-            .expect(&format!("could not find pattern: {} in signal map: {:?}", out_sig, sig_map));
+        let digit = sig_map.get(out_sig).expect(&format!(
+            "could not find pattern: {} in signal map: {:?}",
+            out_sig, sig_map
+        ));
         result = result * 10 + digit;
     }
     result
@@ -213,7 +251,8 @@ mod test {
 
     #[test]
     fn test_infer_example() {
-        let test_input = "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf";
+        let test_input =
+            "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf";
         let expected_mapping: HashMap<String, u32> = [
             ("acedgfb", 8),
             ("cdfbe", 5),
@@ -225,7 +264,10 @@ mod test {
             ("eafb", 4),
             ("cagedb", 0),
             ("ab", 1),
-        ].iter().map(|(s, n)| (normalize(s), *n as u32)).collect();
+        ]
+        .iter()
+        .map(|(s, n)| (normalize(s), *n as u32))
+        .collect();
 
         let note = test_input.parse::<Note>().unwrap();
         let sig_map = infer_signal_mapping(&note);

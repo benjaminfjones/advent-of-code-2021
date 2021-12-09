@@ -59,7 +59,8 @@ pub fn d9_part1(grid: &Grid<u32>) -> u32 {
     windows
         .into_iter()
         .filter(|w| w.neighbors.iter().all(|&nv| nv > w.value))
-        .map(|w| 1 + w.value).sum()
+        .map(|w| 1 + w.value)
+        .sum()
 }
 
 #[cfg(test)]
