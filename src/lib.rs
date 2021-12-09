@@ -65,7 +65,7 @@ mod grid {
         }
 
         pub fn from_rows(content: Vec<Vec<T>>) -> Result<Self, &'static str> {
-            if content.len() == 0 {
+            if content.is_empty() {
                 return Ok(Grid{rows: 0, cols: 0, content: Vec::new()});
             }
             let rows = content.len();

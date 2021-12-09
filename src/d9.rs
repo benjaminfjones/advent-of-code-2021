@@ -1,6 +1,5 @@
 /// AoC 2021 -- Day 9
 /// https://adventofcode.com/2021/day/9
-
 use crate::{grid::Grid, util};
 
 #[allow(dead_code)]
@@ -16,11 +15,23 @@ pub fn windows(grid: &Grid<u32>) -> Vec<Window> {
     for row in 0..grid.rows {
         for col in 0..grid.cols {
             let nbs = vec![
-                if row > 0 {grid.get(row-1, col)} else {None},
-                grid.get(row+1, col),
-                if col > 0 {grid.get(row, col-1)} else {None},
-                grid.get(row, col+1),
-            ].into_iter().flatten().map(|v| *v).collect();
+                if row > 0 {
+                    grid.get(row - 1, col)
+                } else {
+                    None
+                },
+                grid.get(row + 1, col),
+                if col > 0 {
+                    grid.get(row, col - 1)
+                } else {
+                    None
+                },
+                grid.get(row, col + 1),
+            ]
+            .into_iter()
+            .flatten()
+            .map(|v| *v)
+            .collect();
             result.push(Window {
                 row,
                 col,
@@ -34,7 +45,9 @@ pub fn windows(grid: &Grid<u32>) -> Vec<Window> {
 
 pub fn parse_input(input_file: &str) -> Grid<u32> {
     let content = util::read_to_string(input_file).unwrap();
-    let rows: Vec<Vec<u32>> = content.trim().split('\n')
+    let rows: Vec<Vec<u32>> = content
+        .trim()
+        .split('\n')
         .map(|line| line.chars().map(|c| c.to_digit(10).unwrap()).collect())
         .collect();
     Grid::from_rows(rows).expect("failed to build grid")
@@ -43,9 +56,10 @@ pub fn parse_input(input_file: &str) -> Grid<u32> {
 /// returns the sum of low point risk scores
 pub fn d9_part1(grid: &Grid<u32>) -> u32 {
     let windows = windows(grid);
-    let low_point_windows: Vec<Window> = windows.into_iter()
-        .filter(|w| w.neighbors.iter().all(|&nv| nv > w.value)).collect();
-    low_point_windows.into_iter().map(|w| 1 + w.value).sum()
+    windows
+        .into_iter()
+        .filter(|w| w.neighbors.iter().all(|&nv| nv > w.value))
+        .map(|w| 1 + w.value).sum()
 }
 
 #[cfg(test)]
