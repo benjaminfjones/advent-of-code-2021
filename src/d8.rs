@@ -34,7 +34,7 @@ impl FromStr for Note {
 
 fn normalize(s: &str) -> String {
     let mut cs: Vec<char> = s.chars().collect();
-    cs.sort();
+    cs.sort_unstable();
     cs.into_iter().collect()
 }
 
@@ -52,7 +52,7 @@ fn is_uniq_output(output: &str) -> bool {
     n == 2 || n == 3 || n == 4 || n == 7
 }
 
-pub fn d8_part1(notes: &Vec<Note>) -> usize {
+pub fn d8_part1(notes: &[Note]) -> usize {
     let mut count: usize = 0;
     for n in notes {
         for out in n.outputs.iter() {
@@ -67,7 +67,7 @@ pub fn d8_part1(notes: &Vec<Note>) -> usize {
 type SignalSet = String;
 
 /// Return the number of signal wires common to both sets
-fn num_common_signals(ss1: &SignalSet, ss2: &SignalSet) -> usize {
+fn num_common_signals(ss1: &str, ss2: &str) -> usize {
     let hss1: HashSet<char> = ss1.chars().collect();
     let hss2: HashSet<char> = ss2.chars().collect();
     hss1.intersection(&hss2).collect::<HashSet<&char>>().len()
@@ -77,11 +77,11 @@ fn num_common_signals(ss1: &SignalSet, ss2: &SignalSet) -> usize {
 fn infer(
     sig_map: &mut HashMap<SignalSet, u32>,
     digit_map: &mut HashMap<u32, SignalSet>,
-    signal: &SignalSet,
+    signal: &str,
     digit: u32,
 ) {
-    sig_map.insert(signal.clone(), digit);
-    digit_map.insert(digit, signal.clone());
+    sig_map.insert(signal.to_string(), digit);
+    digit_map.insert(digit, signal.to_string());
 }
 
 /// Infer a signal map from the observations in the given Note
@@ -199,19 +199,17 @@ fn infer_signal_mapping(note: &Note) -> HashMap<SignalSet, u32> {
     sig_map
 }
 
-fn decode_outputs(sig_map: &HashMap<SignalSet, u32>, outputs: &Vec<String>) -> u32 {
+fn decode_outputs(sig_map: &HashMap<SignalSet, u32>, outputs: &[String]) -> u32 {
     let mut result = 0u32;
     for out_sig in outputs {
-        let digit = sig_map.get(out_sig).expect(&format!(
-            "could not find pattern: {} in signal map: {:?}",
-            out_sig, sig_map
-        ));
+        let digit = sig_map.get(out_sig).unwrap_or_else(||
+            panic!("could not find pattern: {} in signal map: {:?}", out_sig, sig_map));
         result = result * 10 + digit;
     }
     result
 }
 
-pub fn d8_part2(notes: &Vec<Note>) -> u32 {
+pub fn d8_part2(notes: &[Note]) -> u32 {
     let mut solution = 0u32;
     for n in notes.iter() {
         let sig_map = infer_signal_mapping(n);
