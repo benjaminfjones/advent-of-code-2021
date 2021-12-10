@@ -1,8 +1,6 @@
 /// AoC 2021 -- Day 3
 /// https://adventofcode.com/2021/day/3
-extern crate aoc_2021;
-
-use aoc_2021::util;
+use crate::util;
 
 pub fn main() {
     println!("d3 part1: {}", d3_part1("inputs/d3"));

@@ -1,13 +1,11 @@
 /// AoC 2021 -- Day 5
 /// https://adventofcode.com/2021/day/5
-extern crate aoc_2021;
-
 use std::collections::HashMap;
 use std::fmt;
 
 use regex::Regex;
 
-use aoc_2021::util;
+use crate::util;
 
 /// 2d line on an integer grid
 #[derive(Debug)]

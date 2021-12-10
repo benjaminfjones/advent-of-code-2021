@@ -5,7 +5,7 @@
 ///
 /// Benmark Before (best of 5):
 ///
-/// ```
+/// ```text
 /// $ target/release/d6
 /// [test] number of fish after 80 days: 5934
 /// number of fish after 80 days: 374927 (duration 91.125µs)
@@ -15,7 +15,7 @@
 ///
 /// Benchmark After (best of 5):
 ///
-/// ```
+/// ```text
 /// $ target/release/d6
 /// [test] number of fish after 80 days: 5934
 /// number of fish after 80 days: 374927 (duration 87.083µs)
@@ -27,7 +27,7 @@
 ///
 /// Benchmark after refactoring FishMap to [u64; 9]:
 ///
-/// ```
+/// ```text
 /// [test] number of fish after 80 days: 5934
 /// number of fish after 80 days: 374927 (duration 37.458µs)
 /// [test] number of fish after 256 days: 26984457539
@@ -35,11 +35,9 @@
 /// ```
 ///
 /// Roughly 8x faster...
-extern crate aoc_2021;
-
 use std::time::Instant;
 
-use aoc_2021::util;
+use crate::util;
 
 fn parse_input(file: &str) -> Vec<usize> {
     let content = util::read_to_string(file).unwrap();

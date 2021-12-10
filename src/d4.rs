@@ -1,10 +1,9 @@
 /// AoC 2021 -- Day 4
 /// https://adventofcode.com/2021/day/4
-extern crate aoc_2021;
-
-use aoc_2021::util;
 use std::collections::HashMap;
 use std::collections::HashSet;
+
+use crate::util;
 
 pub fn main() {
     // Process the munged input

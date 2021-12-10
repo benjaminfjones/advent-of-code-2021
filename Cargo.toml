@@ -10,30 +10,6 @@ regex = "1"
 [dev-dependencies]
 criterion = "0.3"
 
-[[bin]]
-name = "d1"
-path = "src/d1/bin/main.rs"
-
-[[bin]]
-name = "d2"
-path = "src/d2/bin/main.rs"
-
-[[bin]]
-name = "d3"
-path = "src/d3/bin/main.rs"
-
-[[bin]]
-name = "d4"
-path = "src/d4/bin/main.rs"
-
-[[bin]]
-name = "d5"
-path = "src/d5/bin/main.rs"
-
-[[bin]]
-name = "d6"
-path = "src/d6/bin/main.rs"
-
 [[bench]]
 name = "d7"
 harness = false

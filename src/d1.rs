@@ -1,8 +1,7 @@
 /// AoC 2021 -- Day 1
 /// https://adventofcode.com/2021/day/1
-extern crate aoc_2021;
 
-use aoc_2021::util;
+use crate::util;
 
 pub fn main() {
     let d1_part1_soln = d1_part1("inputs/d1");

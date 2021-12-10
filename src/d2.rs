@@ -1,8 +1,6 @@
 /// AoC 2021 -- Day 2
 /// https://adventofcode.com/2021/day/2
-extern crate aoc_2021;
-
-use aoc_2021::util;
+use crate::util;
 
 pub struct State {
     aim: i64,
