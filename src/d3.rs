@@ -2,28 +2,21 @@
 /// https://adventofcode.com/2021/day/3
 use crate::util;
 
-pub fn main() {
-    println!("d3 part1: {}", d3_part1("inputs/d3"));
-    println!("d3 part2: {}", d3_part2("inputs/d3"));
-}
-
-pub fn d3_part1(input_file: &str) -> usize {
-    let input_bvs = input_to_bitvectors(input_file);
+pub fn d3_part1(input_bvs: &[Vec<bool>]) -> usize {
     let nbits = input_bvs[0].len();
     // gamma_rate has the most common bit at each index
     let gamma_rate: Vec<bool> = (0..nbits)
-        .map(|i| mcb(&input_bvs.iter().collect(), i))
+        .map(|i| mcb(&input_bvs.iter().collect::<Vec<&Vec<bool>>>(), i))
         .collect();
     // eps_rate is the bit-wise negation of gamma_rate
-    let eps_rate = gamma_rate.iter().map(|b| !b).collect();
+    let eps_rate: Vec<bool> = gamma_rate.iter().map(|b| !*b).collect();
     bv_to_int(&gamma_rate) * bv_to_int(&eps_rate)
 }
 
-pub fn d3_part2(input_file: &str) -> usize {
-    let input_bvs = input_to_bitvectors(input_file);
-    let oxy_rate = find_bv_by_selector(&input_bvs, |bvs, i| mcb(bvs, i));
-    let co2_rate = find_bv_by_selector(&input_bvs, |bvs, i| !mcb(bvs, i));
-    bv_to_int(&oxy_rate) * bv_to_int(&co2_rate)
+pub fn d3_part2(input_bvs: &[Vec<bool>]) -> usize {
+    let oxy_rate = find_bv_by_selector(input_bvs, |bvs, i| mcb(bvs, i));
+    let co2_rate = find_bv_by_selector(input_bvs, |bvs, i| !mcb(bvs, i));
+    bv_to_int(oxy_rate) * bv_to_int(co2_rate)
 }
 
 /// parse an input file consisting of one bitstring per line into a vector of bitvectors
@@ -38,31 +31,33 @@ pub fn input_to_bitvectors(input_file: &str) -> Vec<Vec<bool>> {
 
 /// Return the first bitvector after repreatedly filtering using the given column
 /// selector; avoids copying inner bitvectors
-pub fn find_bv_by_selector<F>(bvs: &Vec<Vec<bool>>, selector: F) -> &Vec<bool>
+pub fn find_bv_by_selector<F>(bvs: &[Vec<bool>], selector: F) -> &Vec<bool>
 where
-    F: Fn(&Vec<&Vec<bool>>, usize) -> bool,
+    F: Fn(&[&Vec<bool>], usize) -> bool,
 {
+    let mut current_bvs: Vec<&Vec<bool>> = bvs.iter().collect();
     let nbits = bvs[0].len();
-    let mut bv_ptrs: Vec<&Vec<bool>> = bvs.iter().collect();
+    // row selector, initially all rows are selected
+    // refs to bitvectors are copied on each iteration
     for i in 0..nbits {
-        let b = selector(&bv_ptrs, i);
-        bv_ptrs = bv_ptrs.into_iter().filter(|&v| v[i] == b).collect();
-        if bv_ptrs.len() == 1 {
+        let b = selector(&current_bvs, i);
+        current_bvs = current_bvs.into_iter().filter(|&v| v[i] == b).collect();
+        if current_bvs.len() == 1 {
             break;
         }
     }
-    bv_ptrs[0]
+    current_bvs[0]
 }
 
 /// Convert bitvector to unsigned int
-pub fn bv_to_int(bv: &Vec<bool>) -> usize {
+pub fn bv_to_int(bv: &[bool]) -> usize {
     bv.iter()
         .fold(0, |acc, &x| (acc << 1) + (if x { 1 } else { 0 }))
 }
 
-/// Most common bit at given index
-pub fn mcb(bvs: &Vec<&Vec<bool>>, index: usize) -> bool {
-    2 * bvs.iter().filter(|&v| v[index]).count() >= bvs.len()
+/// Most common bit at given column index
+pub fn mcb(bvs: &[&Vec<bool>], index: usize) -> bool {
+    2 * bvs.iter().filter(|&&v| v[index]).count() >= bvs.len()
 }
 
 #[cfg(test)]
@@ -70,14 +65,33 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_mcb() {
+        let input_bvs = input_to_bitvectors("inputs/d3_test");
+        assert_eq!(mcb(&input_bvs.iter().collect::<Vec<&Vec<bool>>>(), 0), true);
+        assert_eq!(mcb(&input_bvs.iter().collect::<Vec<&Vec<bool>>>(), 1), false);
+    }
+
+    #[test]
+    fn test_d3_part1_test() {
+        let input_bvs = input_to_bitvectors("inputs/d3_test");
+        assert_eq!(d3_part1(&input_bvs), 198);
+    }
+
+    #[test]
     fn test_d3_part1() {
-        assert_eq!(d3_part1("inputs/d3_test"), 198);
-        assert_eq!(d3_part1("inputs/d3"), 2743844);
+        let input_bvs = input_to_bitvectors("inputs/d3");
+        assert_eq!(d3_part1(&input_bvs), 2743844);
+    }
+
+    #[test]
+    fn test_d3_part2_test() {
+        let input_bvs = input_to_bitvectors("inputs/d3_test");
+        assert_eq!(d3_part2(&input_bvs), 230);
     }
 
     #[test]
     fn test_d3_part2() {
-        assert_eq!(d3_part2("inputs/d3_test"), 230);
-        assert_eq!(d3_part2("inputs/d3"), 6677951);
+        let input_bvs = input_to_bitvectors("inputs/d3");
+        assert_eq!(d3_part2(&input_bvs), 6677951);
     }
 }
