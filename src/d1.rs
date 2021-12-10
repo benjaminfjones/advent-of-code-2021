@@ -21,8 +21,7 @@ pub fn d1_part1(input_file: &str) -> usize {
         .iter()
         .zip(succs)
         .filter(|(&p, &s)| s > p)
-        .collect::<Vec<_>>()
-        .len()
+        .count()
 }
 
 pub fn d1_part2(input_file: &str) -> usize {
@@ -35,8 +34,7 @@ pub fn d1_part2(input_file: &str) -> usize {
         .iter()
         .zip(succs)
         .filter(|(&pw, &sw)| sw[2] > pw[0])
-        .collect::<Vec<_>>()
-        .len()
+        .count()
 }
 
 #[cfg(test)]
