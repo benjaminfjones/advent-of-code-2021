@@ -17,12 +17,7 @@ struct Line {
 impl Line {
     // create a new line, normalizing start/end to be lexicographic
     fn new(x0: i64, y0: i64, x1: i64, y1: i64) -> Self {
-        if x0 > x1 {
-            Line {
-                start: (x1, y1),
-                end: (x0, y0),
-            }
-        } else if x0 == x1 && y0 > y1 {
+        if x0 > x1 || x0 == x1 && y0 > y1 {
             Line {
                 start: (x1, y1),
                 end: (x0, y0),
@@ -114,7 +109,7 @@ impl fmt::Display for Grid {
                 };
                 result += &marker;
             }
-            result += &format!("\n");
+            result += &"\n".to_string();
         }
         write!(f, "{}\n", result)
     }
