@@ -1,7 +1,8 @@
-use crate::{grid::Grid, util};
 /// AoC 2021 -- Day 9
 /// https://adventofcode.com/2021/day/9
 use std::collections::HashSet;
+
+use crate::{grid::Grid, util};
 
 type Height = u32;
 const MAX_HEIGHT: u32 = 9;
@@ -43,12 +44,10 @@ fn collect_neigbors(
     nblocs
         .into_iter()
         .map(|(r, c)| {
-            grid.get(r, c).map(|&v| {
-                Pos {
-                    row: r,
-                    col: c,
-                    value: v,
-                }
+            grid.get(r, c).map(|&v| Pos {
+                row: r,
+                col: c,
+                value: v,
             })
         })
         .flatten()
@@ -122,7 +121,8 @@ pub fn d9_part2(grid: &Grid<Height>) -> usize {
             // update basin area w/ current frontier
             let new_area = basin.area.union(&frontier).cloned().collect();
             // grow the frontier
-            let mut new_frontier: Area = frontier.iter()
+            let mut new_frontier: Area = frontier
+                .iter()
                 .flat_map(|p| collect_neigbors(grid, p.row, p.col, p.value + 1, MAX_HEIGHT - 1))
                 .collect();
             // filter the new frontier to only include positions outside the new area
@@ -130,14 +130,23 @@ pub fn d9_part2(grid: &Grid<Height>) -> usize {
             if !new_frontier.is_empty() {
                 changed = true;
             }
-            new_basins.push((Basin {root: basin.root, area: new_area}, new_frontier));
+            new_basins.push((
+                Basin {
+                    root: basin.root,
+                    area: new_area,
+                },
+                new_frontier,
+            ));
         }
         basins = new_basins;
         if !changed {
             break;
         }
     }
-    let mut final_basin_sizes = basins.iter().map(|(b, _)| b.area.len()).collect::<Vec<usize>>();
+    let mut final_basin_sizes = basins
+        .iter()
+        .map(|(b, _)| b.area.len())
+        .collect::<Vec<usize>>();
     final_basin_sizes.sort_unstable();
     final_basin_sizes = final_basin_sizes.into_iter().rev().collect();
     assert!(final_basin_sizes.len() >= 3);
