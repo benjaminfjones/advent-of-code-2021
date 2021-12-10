@@ -12,9 +12,9 @@ pub fn parse_input(file: &str) -> Vec<u64> {
 }
 
 /// This is not correct, in general, but is for the two given inputs :)
-fn median(xs: &Vec<u64>) -> u64 {
-    let mut xs_copy = xs.clone();
-    xs_copy.sort();
+fn median(xs: &[u64]) -> u64 {
+    let mut xs_copy = xs.to_owned();
+    xs_copy.sort_unstable();
     let n = xs_copy.len();
     if n % 2 == 0 {
         xs_copy[(n / 2) - 1]
