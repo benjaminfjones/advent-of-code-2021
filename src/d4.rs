@@ -65,7 +65,7 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn from_u32s(us: &Vec<u32>) -> Self {
+    pub fn from_u32s(us: &[u32]) -> Self {
         assert!(us.len() == 25);
         let mut cellmap: HashMap<Pos, Cell> = HashMap::new();
         let mut posmap: HashMap<u32, Pos> = HashMap::new();
