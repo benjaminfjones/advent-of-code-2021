@@ -20,7 +20,7 @@ where
         .split('\n')
         // turn lines -> tuples (&str, i64)
         .map(|s| {
-            let splits: Vec<&str> = s.split(" ").collect();
+            let splits: Vec<&str> = s.split(char::is_whitespace).collect();
             (splits[0], splits[1].parse::<i64>().unwrap())
         })
         .collect();
