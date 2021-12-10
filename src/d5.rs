@@ -111,7 +111,7 @@ impl fmt::Display for Grid {
             }
             result += &"\n".to_string();
         }
-        write!(f, "{}\n", result)
+        writeln!(f, "{}", result)
     }
 }
 
