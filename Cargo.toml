@@ -11,5 +11,9 @@ regex = "1"
 criterion = "0.3"
 
 [[bench]]
+name = "d3"
+harness = false
+
+[[bench]]
 name = "d7"
 harness = false

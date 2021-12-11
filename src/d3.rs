@@ -1,5 +1,7 @@
 /// AoC 2021 -- Day 3
 /// https://adventofcode.com/2021/day/3
+use std::collections::HashSet;
+
 use crate::util;
 
 pub fn d3_part1(input_bvs: &[Vec<bool>]) -> usize {
@@ -16,6 +18,13 @@ pub fn d3_part1(input_bvs: &[Vec<bool>]) -> usize {
 pub fn d3_part2(input_bvs: &[Vec<bool>]) -> usize {
     let oxy_rate = find_bv_by_selector(input_bvs, |bvs, i| mcb(bvs, i));
     let co2_rate = find_bv_by_selector(input_bvs, |bvs, i| !mcb(bvs, i));
+    bv_to_int(oxy_rate) * bv_to_int(co2_rate)
+}
+
+/// Alternate implementation of d3_part2, for comparison
+pub fn d3_part2_alt2(input_bvs: &[Vec<bool>]) -> usize {
+    let oxy_rate = find_bv_by_selector_alt2(input_bvs, true);
+    let co2_rate = find_bv_by_selector_alt2(input_bvs, false);
     bv_to_int(oxy_rate) * bv_to_int(co2_rate)
 }
 
@@ -49,6 +58,27 @@ where
     current_bvs[0]
 }
 
+/// Alternate implementation of find_bv_by_selector, for comparison
+/// This version avoids copying bitvector refs on every iteration, instead removing from a hash
+/// set. It also avoids consuming a closure. It is ~100x slower :sob:
+pub fn find_bv_by_selector_alt2(bvs: &[Vec<bool>], most_common: bool) -> &Vec<bool> {
+    let mut current_bvs: HashSet<&Vec<bool>> = bvs.iter().collect();
+    let nbits = bvs[0].len();
+    // in this version, bitvector refs are not copied on every iteration
+    for i in 0..nbits {
+        let b = mcb_alt2(&current_bvs, i) == most_common;
+        for v in bvs.iter() {
+            if current_bvs.contains(v) && v[i] != b {
+                current_bvs.remove(v);
+            }
+        }
+        if current_bvs.len() == 1 {
+            break;
+        }
+    }
+    current_bvs.into_iter().next().unwrap()
+}
+
 /// Convert bitvector to unsigned int
 pub fn bv_to_int(bv: &[bool]) -> usize {
     bv.iter()
@@ -57,6 +87,11 @@ pub fn bv_to_int(bv: &[bool]) -> usize {
 
 /// Most common bit at given column index
 pub fn mcb(bvs: &[&Vec<bool>], index: usize) -> bool {
+    2 * bvs.iter().filter(|&&v| v[index]).count() >= bvs.len()
+}
+
+/// Most common bit, hashset version
+pub fn mcb_alt2(bvs: &HashSet<&Vec<bool>>, index: usize) -> bool {
     2 * bvs.iter().filter(|&&v| v[index]).count() >= bvs.len()
 }
 
@@ -93,5 +128,11 @@ mod test {
     fn test_d3_part2() {
         let input_bvs = input_to_bitvectors("inputs/d3");
         assert_eq!(d3_part2(&input_bvs), 6677951);
+    }
+
+    #[test]
+    fn test_d3_part2_alt2() {
+        let input_bvs = input_to_bitvectors("inputs/d3");
+        assert_eq!(d3_part2_alt2(&input_bvs), 6677951);
     }
 }
