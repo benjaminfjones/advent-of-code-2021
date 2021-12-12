@@ -5,10 +5,18 @@ authors = ["Benjamin Jones <benjaminfjones@gmail.com>"]
 edition = "2021"
 
 [dependencies]
+itertools = "0.10.3"
 regex = "1"
+
 
 [dev-dependencies]
 criterion = "0.3"
+
+[profile.bench]
+debug = true
+
+[profile.release]
+debug = true
 
 [[bench]]
 name = "d3"

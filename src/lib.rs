@@ -8,6 +8,7 @@ pub mod d7;
 pub mod d8;
 pub mod d9;
 pub mod d10;
+pub mod d11;
 
 pub mod util {
     use std::fs::File;
@@ -53,6 +54,11 @@ pub mod util {
 }
 
 mod grid {
+    use std::fmt;
+
+    use itertools::iproduct;
+
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct Grid<T> {
         pub rows: usize,
         pub cols: usize,
@@ -111,6 +117,16 @@ mod grid {
             }
         }
 
+        /// Get element from the grid at (row, col)
+        /// variant that accepts positive and negative row/col
+        pub fn geti32(&self, row: i32, col: i32) -> Option<&T> {
+            if 0 <= row && row < (self.rows as i32) && 0 <= col && col < (self.cols as i32) {
+                Some(&self.content[(row as usize) * self.cols + (col as usize)])
+            } else {
+                None
+            }
+        }
+
         /// Set element on the grid at (row, col)
         pub fn set(&mut self, row: usize, col: usize, value: T) -> Result<(), ()> {
             if row < self.rows && col < self.cols {
@@ -119,6 +135,51 @@ mod grid {
             } else {
                 Err(())
             }
+        }
+
+        /// Set element on the grid at (row, col)
+        /// variant that accepts positive and negative row/col
+        pub fn seti32(&mut self, row: i32, col: i32, value: T) -> Result<(), ()> {
+            if 0 <= row && row < (self.rows as i32) && 0 <= col && col < (self.cols as i32) {
+                self.content[(row as usize) * self.cols + (col as usize)] = value;
+                Ok(())
+            } else {
+                Err(())
+            }
+        }
+
+        pub fn iter(&self) -> impl Iterator<Item=&T> {
+            self.content.iter()
+        }
+
+        /// Iterate over position tuples (row, col) in the grid
+        pub fn iter_pos(&self) -> impl Iterator<Item=(usize, usize)> {
+            iproduct!(0..self.rows, 0..self.cols)
+        }
+
+        /// Iterate over tuples (row, col, value) in the grid
+        pub fn iter_pos_val(&self) -> impl Iterator<Item=(usize, usize, &T)> {
+            self.iter_pos().map(|(r, c)| (r, c, self.get(r, c).unwrap()))
+        }
+
+        pub fn iter_mut(&mut self) -> impl Iterator<Item=&mut T> {
+            self.content.iter_mut()
+        }
+    }
+
+    // render grids on the terminal, for fun and laughs
+    // TODO: don't assume each T renders at the same width
+    impl<T: std::fmt::Display> fmt::Display for Grid<T> {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            let mut result = String::new();
+            for y in 0..self.rows {
+                for x in 0..self.cols {
+                    let value = self.get(y, x).unwrap();
+                    result += &format!("{}", value)
+                }
+                result += &"\n".to_string();
+            }
+            writeln!(f, "{}", result)
         }
     }
 
@@ -142,6 +203,12 @@ mod grid {
             let content = vec![vec![0, 1, 0], vec![2, 3, 4]];
             let grid = Grid::from_rows(content).unwrap();
             assert_eq!(grid.get(0, 0), Some(&0));
+        }
+
+        #[test]
+        fn test_display_grid() {
+            let content = vec![vec![0, 1, 0], vec![2, 3, 4]];
+            println!("{}", Grid::from_rows(content).unwrap());
         }
     }
 }
