@@ -9,6 +9,7 @@ pub mod d8;
 pub mod d9;
 pub mod d10;
 pub mod d11;
+pub mod d12;
 
 pub mod util {
     use std::fs::File;
