@@ -6,6 +6,8 @@ use std::fmt;
 
 use crate::util;
 
+const DEBUG: bool = true;
+
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Node(String);
 
@@ -25,7 +27,11 @@ impl fmt::Display for Node {
     }
 }
 
-pub fn fmt_node_vec(v: &Vec<Node>) -> String {
+/// Finite path through a graph
+type Path = Vec<Node>;
+type PathSlice<'a> = &'a [Node];
+
+pub fn fmt_path(v: PathSlice) -> String {
     let ns: Vec<String> = v.iter().map(|n| format!("{}", n)).collect();
     format!("[{}]", ns.join(", "))
 }
@@ -50,11 +56,13 @@ impl Graph {
     ///
     /// Example:
     ///
+    /// ```text
     ///     start
     ///     /   \
     /// c--A-----b--d
     ///     \   /
     ///      end
+    /// ```
     ///
     /// current path:      call stack:
     /// -------------      -----------
@@ -82,8 +90,8 @@ impl Graph {
     pub fn list_paths(&self, start: Node, end: Node, max_ssn: usize) -> Vec<Path> {
         let mut result_paths: HashSet<Vec<Node>> = HashSet::new();
         // initial call stack has the start and its neighbors
-        let mut call_stack = vec![self.neighbors[&start].iter().cloned().collect()];
-        let mut current_path: Path = vec![start];
+        let mut call_stack = vec![self.neighbors[&start].to_vec()];
+        let mut current_path: Path = vec![start.clone()];
         let mut current_path_set: HashSet<Node> = current_path.iter().cloned().collect();
 
         let mut steps: usize = 0;
@@ -91,14 +99,18 @@ impl Graph {
             steps += 1;
 
             let current_stack: &mut Path = call_stack.last_mut().unwrap();
-            // println!(
-            //     "current_path {}, stack {}",
-            //     fmt_node_vec(&current_path),
-            //     fmt_node_vec(&current_stack),
-            // );
+            if DEBUG {
+                println!(
+                    "current_path {}, stack {}",
+                    fmt_path(&current_path),
+                    fmt_path(current_stack),
+                );
+            }
 
             if current_stack.is_empty() {
-                // println!("current level exhusted, popping current path, popping call stack");
+                if DEBUG {
+                    println!("current level exhusted, popping current path, popping call stack");
+                }
                 let current_path_end = current_path.pop().unwrap();
                 current_path_set.remove(&current_path_end);
                 call_stack.pop();
@@ -120,36 +132,68 @@ impl Graph {
             current_path.push(next_node.clone());
             current_path_set.insert(next_node);
             let current_node = current_path.last().unwrap();
-            let nbs: Vec<Node> = self.neighbors[&current_node].iter()
+            let nbs: Vec<Node> = self.neighbors[current_node].iter()
                 // filtering here cuts number of iterations and vector copies in half in test cases
-                .filter(|n| is_admissible(n, start, &current_path, 2))
+                .filter(|n| is_admissible(n, &current_path, &start, max_ssn))
                 .cloned()
                 .collect();
-            // println!("visiting {}, pushing neighbors on the stack {}", current_node, fmt_node_vec(&nbs));
+            if DEBUG {
+                println!("visiting {}, pushing neighbors on the stack {}", current_node, fmt_path(&nbs));
+            }
             call_stack.push(nbs);
         }
-        if steps >= MAX_STEPS {
-            println!("*** Ran out of fuel at step {} ***", steps);
-        } else {
-            println!("*** Total steps {} ***", steps);
+        if DEBUG {
+            if steps >= MAX_STEPS {
+                println!("*** Ran out of fuel at step {} ***", steps);
+            } else {
+                println!("*** Total steps {} ***", steps);
+            }
         }
         result_paths.into_iter().collect()
     }
 }
 
-/// Return the max multiplicity of any node on the path
-fn multiplicity(path: &Path) -> usize {
-    let mut counts: HashMap<Node, usize> = HashMap::new();
-    for p in path {
-        let e = counts.entry(*p).or_insert(0);
-        *e += 1;
+/// Predicate used to filter nodes to-be-visited
+///
+/// A test node is admissible to be visted iff:
+///
+/// 0. node is not 'start'
+/// 1. node is big
+/// 2. node is small, path is not yet maxed
+/// 3. node is small, path is maxed, but test node is not on path
+///
+/// params:
+/// - test_node: potential node to visit
+/// - start: ref to the unique start node (which is never admissible to visit)
+/// - current_path: the current path explored so far
+/// - max_ssn: maximum number of times a (s)ingle (s)mall (n)ode may be visited on any
+///     admissible path
+fn is_admissible(test_node: &Node, current_path: PathSlice, start: &Node, max_ssn: usize) -> bool {
+    if *test_node == *start {
+        return false;
+    } else if !test_node.is_small() {
+        return true;
     }
-    counts.into_iter().map(|(_n, c)| c).max().unwrap()
-}
-
-fn is_admissible(test_node: &Node, start: &Node, current_path: &Path, max_ssn: usize) -> bool {
-    let m = multiplicity(current_path);
-    !test_node.is_small() || m < max_ssn || !current_path.contains(test_node)
+    let mut counts: HashMap<Node, usize> = HashMap::new();
+    for p in current_path.iter().cloned() {
+            let e = counts.entry(p).or_insert(0);
+            *e += 1;
+    }
+    let max_small_count = counts.iter()
+        .filter(|(n, _c)| n.is_small())
+        .map(|(_n, c)| *c)
+        .max()
+        .unwrap();
+    let test_node_count = *counts.get(test_node).unwrap_or(&0);
+    let path_has_the_max = max_small_count >= max_ssn;
+    let path_has_the_node = test_node_count > 0;
+    if DEBUG {
+        println!(
+            "     isa: path {}, test_node {}, path_has_the_max {}, path_has_the_node {}, max_small_count {}, max_ssn {}",
+            fmt_path(current_path), test_node, path_has_the_max, path_has_the_node, max_small_count, max_ssn,
+        );
+    }
+    !path_has_the_max || !path_has_the_node
 }
 
 // render graphs on the terminal, for fun and laughs
@@ -158,14 +202,11 @@ impl fmt::Display for Graph {
         let mut result = String::new();
         for (k, v) in self.neighbors.iter() {
             let prefix = if k.is_small() {"(small)"} else {"(big)  "};
-            result += &format!("{} {} -> {}\n", prefix, k, fmt_node_vec(v));
+            result += &format!("{} {} -> {}\n", prefix, k, fmt_path(v));
         }
         writeln!(f, "{}", result)
     }
 }
-
-/// Finite path through a graph
-type Path = Vec<Node>;
 
 pub fn parse_input(input_file: &str) -> Graph {
     let content = util::read_to_string(input_file).unwrap();
@@ -188,10 +229,10 @@ pub fn parse_input_from_string(content: &str) -> Graph {
         let s2 = s.clone();
         let e2 = e.clone();
         // add edge s -> e
-        let snbds = neighbors.entry(s).or_insert(Vec::new());
+        let snbds = neighbors.entry(s).or_insert_with(Vec::new);
         snbds.push(e);
         // add edge e -> s
-        let enbds = neighbors.entry(e2).or_insert(Vec::new());
+        let enbds = neighbors.entry(e2).or_insert_with(Vec::new);
         enbds.push(s2);
     }
     Graph{neighbors}
@@ -213,10 +254,10 @@ mod test {
     #[test]
     fn test_list_paths_test_graph1() {
         let test_graph = parse_input("inputs/d12_test");
-        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"));
+        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 1);
         println!("d12 test_graph1 paths:");
         for (i, p) in paths.iter().enumerate() {
-            println!("{}: {}", i, fmt_node_vec(p));
+            println!("{}: {}", i, fmt_path(p));
         }
         assert_eq!(paths.len(), 10);
     }
@@ -224,21 +265,21 @@ mod test {
     #[test]
     fn test_list_paths_test_graph2() {
         let test_graph = parse_input("inputs/d12_test2");
-        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"));
+        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 1);
         assert_eq!(paths.len(), 19);
     }
 
     #[test]
     fn test_list_paths_test_graph3() {
         let test_graph = parse_input("inputs/d12_test3");
-        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"));
+        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 1);
         assert_eq!(paths.len(), 226);
     }
 
     #[test]
     fn test_d12_part1() {
         let test_graph = parse_input("inputs/d12");
-        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"));
+        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 1);
         assert_eq!(paths.len(), 5178);
     }
 }
