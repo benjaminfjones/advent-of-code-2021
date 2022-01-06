@@ -6,7 +6,7 @@ use std::fmt;
 
 use crate::util;
 
-const DEBUG: bool = true;
+const DEBUG: bool = false;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Node(String);
@@ -41,7 +41,7 @@ pub struct Graph {
     neighbors: HashMap<Node, Vec<Node>>
 }
 
-const MAX_STEPS: usize = 100000;
+const MAX_STEPS: usize = 200000;
 
 impl Graph {
     /// Enumerate all paths in ``self`` from start to end that traverse each small node at most
@@ -255,10 +255,6 @@ mod test {
     fn test_list_paths_test_graph1() {
         let test_graph = parse_input("inputs/d12_test");
         let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 1);
-        println!("d12 test_graph1 paths:");
-        for (i, p) in paths.iter().enumerate() {
-            println!("{}: {}", i, fmt_path(p));
-        }
         assert_eq!(paths.len(), 10);
     }
 
@@ -281,5 +277,33 @@ mod test {
         let test_graph = parse_input("inputs/d12");
         let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 1);
         assert_eq!(paths.len(), 5178);
+    }
+
+    #[test]
+    fn test_d12_part2_test_graph1() {
+        let test_graph = parse_input("inputs/d12_test");
+        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 2);
+        assert_eq!(paths.len(), 36);
+    }
+
+    #[test]
+    fn test_d12_part2_test_graph2() {
+        let test_graph = parse_input("inputs/d12_test2");
+        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 2);
+        assert_eq!(paths.len(), 103);
+    }
+
+    #[test]
+    fn test_d12_part2_test_graph3() {
+        let test_graph = parse_input("inputs/d12_test3");
+        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 2);
+        assert_eq!(paths.len(), 3509);
+    }
+
+    #[test]
+    fn test_d12_part2() {
+        let test_graph = parse_input("inputs/d12");
+        let paths = test_graph.list_paths(Node::new("start"), Node::new("end"), 2);
+        assert_eq!(paths.len(), 32879);
     }
 }
