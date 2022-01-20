@@ -48,7 +48,7 @@ fn flash(grid: &mut OctoGrid, row: usize, col: usize) {
         let rr = (row as i32) + dr;
         let cc = (col as i32) + dc;
         if let Some(&v) = grid.geti32(rr, cc) {
-            grid.seti32(rr, cc, v + 1).unwrap();
+            grid.seti32(rr, cc, v + 1);
         }
     }
 }
@@ -93,7 +93,7 @@ pub fn simulate(grid: &OctoGrid, nsteps: usize, verbose: bool) -> (OctoGrid, usi
             first_sync = step + 1;
         }
         for (r, c) in flashers {
-            grid.set(r, c, 0).unwrap();
+            grid.set(r, c, 0);
         }
     }
     if verbose {

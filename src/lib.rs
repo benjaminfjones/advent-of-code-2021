@@ -129,23 +129,21 @@ mod grid {
         }
 
         /// Set element on the grid at (row, col)
-        pub fn set(&mut self, row: usize, col: usize, value: T) -> Result<(), ()> {
+        pub fn set(&mut self, row: usize, col: usize, value: T) {
             if row < self.rows && col < self.cols {
                 self.content[row * self.cols + col] = value;
-                Ok(())
             } else {
-                Err(())
+                panic!("row or col out of bounds");
             }
         }
 
         /// Set element on the grid at (row, col)
         /// variant that accepts positive and negative row/col
-        pub fn seti32(&mut self, row: i32, col: i32, value: T) -> Result<(), ()> {
+        pub fn seti32(&mut self, row: i32, col: i32, value: T) {
             if 0 <= row && row < (self.rows as i32) && 0 <= col && col < (self.cols as i32) {
                 self.content[(row as usize) * self.cols + (col as usize)] = value;
-                Ok(())
             } else {
-                Err(())
+                panic!("row or col out of bounds");
             }
         }
 
@@ -194,9 +192,15 @@ mod grid {
             assert_eq!(grid.get(0, 0), Some(&false));
             assert_eq!(grid.get(0, 501), None);
             assert_eq!(grid.get(501, 0), None);
-
-            assert!(grid.set(1, 1, true).is_ok());
+            grid.set(1, 1, true);  // does not panic
             assert_eq!(grid.get(1, 1), Some(&true));
+        }
+
+        #[test]
+        #[should_panic(expected = "row or col out of bounds")]
+        fn test_grid_set_panic() {
+            let mut grid = Grid::new(5, 5, false);
+            grid.set(100, 100, true);
         }
 
         #[test]
