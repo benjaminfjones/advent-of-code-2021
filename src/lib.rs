@@ -10,6 +10,7 @@ pub mod d9;
 pub mod d10;
 pub mod d11;
 pub mod d12;
+pub mod d13;
 
 pub mod util {
     use std::fs::File;
@@ -133,7 +134,10 @@ mod grid {
             if row < self.rows && col < self.cols {
                 self.content[row * self.cols + col] = value;
             } else {
-                panic!("row or col out of bounds");
+                panic!(
+                    "({}, {}) out of bounds for grid size {}x{}",
+                    row, col, self.rows, self.cols
+                );
             }
         }
 
@@ -143,7 +147,10 @@ mod grid {
             if 0 <= row && row < (self.rows as i32) && 0 <= col && col < (self.cols as i32) {
                 self.content[(row as usize) * self.cols + (col as usize)] = value;
             } else {
-                panic!("row or col out of bounds");
+                panic!(
+                    "({}, {}) out of bounds for grid size {}x{}",
+                    row, col, self.rows, self.cols
+                );
             }
         }
 
@@ -163,6 +170,20 @@ mod grid {
 
         pub fn iter_mut(&mut self) -> impl Iterator<Item=&mut T> {
             self.content.iter_mut()
+        }
+
+        pub fn fmt_with_conversion<F>(&self, converter: F) -> String
+            where F: Fn(&T) -> String,
+        {
+            let mut result = String::new();
+            for y in 0..self.rows {
+                for x in 0..self.cols {
+                    let value = self.get(y, x).unwrap();
+                    result += &format!("{}", converter(value))
+                }
+                result += &"\n".to_string();
+            }
+            result
         }
     }
 
@@ -197,7 +218,7 @@ mod grid {
         }
 
         #[test]
-        #[should_panic(expected = "row or col out of bounds")]
+        #[should_panic(expected = "(100, 100) out of bounds for grid size 5x5")]
         fn test_grid_set_panic() {
             let mut grid = Grid::new(5, 5, false);
             grid.set(100, 100, true);
